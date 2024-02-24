@@ -1,4 +1,5 @@
 import 'package:bloc_todos_app/bloc/login/login_bloc.dart';
+import 'package:bloc_todos_app/bloc/save_user_info/save_user_info_cubit.dart';
 import 'package:bloc_todos_app/data/models/login_req_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,19 +37,47 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        if (state is LoginFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
-          );
-        } else if (state is LoginSuccess) {
-          Navigator.pushNamed(context, '/main');
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            if (state is LoginFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            } else if (state is LoginSuccess) {
+              context.read<SaveUserInfoCubit>().save(state.data.user);
+            }
+          },
+        ),
+        BlocListener<SaveUserInfoCubit, SaveUserInfoState>(
+          listener: (context, state) {
+            if (state is SaveUserInfoSuccess) {
+              Navigator.pushReplacementNamed(context, '/main');
+            }
+          },
+        ),
+        // BlocListener<AuthCubit, AuthState>(
+        //   listener: (context, state) {
+        //     if (state.status == AuthStatus.authenticated) {
+        //       Navigator.pushNamedAndRemoveUntil(
+        //         context,
+        //         '/main',
+        //         (route) => false,
+        //       );
+        //     } else if (state.status == AuthStatus.unauthenticated) {
+        //       Navigator.pushNamedAndRemoveUntil(
+        //         context,
+        //         '/login',
+        //         (route) => false,
+        //       );
+        //     }
+        //   },
+        // ),
+      ],
       child: BlocBuilder<LoginBloc, LoginState>(
         builder: (context, state) {
           if (state is LoginLoading) {

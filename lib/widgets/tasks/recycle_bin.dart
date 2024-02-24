@@ -80,7 +80,7 @@ class _DeletedTasksState extends State<DeletedTasks> {
                       name: task['name'],
                       description: task['description'],
                       dueDate: task['due_date'],
-                      // category_id: task['category_id'],
+                      category: task['category_id'],
                     ),
                   ),
                 ),

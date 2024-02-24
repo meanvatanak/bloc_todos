@@ -1,4 +1,6 @@
+import 'package:bloc_todos_app/bloc/logout/logout_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // confirm alert dialog for logout
 void showConfirmLogoutDialog(BuildContext context) async {
@@ -18,7 +20,8 @@ void showConfirmLogoutDialog(BuildContext context) async {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/login');
+              Navigator.pop(context);
+              context.read<LogoutCubit>().logout(); // logout
             },
             child: const Text('OK'),
           ),

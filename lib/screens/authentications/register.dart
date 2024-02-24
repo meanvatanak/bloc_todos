@@ -1,4 +1,7 @@
+import 'package:bloc_todos_app/bloc/register/register_cubit.dart';
+import 'package:bloc_todos_app/data/models/register_req_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../utilities/constants.dart';
 import '../../widgets/custom_text_field.dart';
@@ -35,198 +38,250 @@ class _RegisterState extends State<Register> {
     super.initState();
   }
 
+  void _onRegisterSubmit() async {
+    if (_formKey.currentState!.validate()) {
+      final registerReqModel = RegisterReqModel(
+        fullName: _fullNameController.text,
+        phone: _phoneController.text,
+        gender: _genderController.text,
+        email: _emailController.text,
+        address: _addressController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        passwordConfirmation: _passwordConfirmationController.text,
+      );
+      context.read<RegisterCubit>().register(registerReqModel);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _phoneController.dispose();
+    _genderController.dispose();
+    _emailController.dispose();
+    _addressController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _passwordConfirmationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/login', (route) => false);
-          },
-        ),
-        backgroundColor: primaryColor,
-        title: Text(
-          'Register Form',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-          child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomTextField(
-                controller: _fullNameController,
-                hintText: 'Full Name',
-                labelText: 'Full Name',
-                prefixIcon: Icon(Icons.person),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              CustomTextField(
-                controller: _phoneController,
-                hintText: 'Phone',
-                labelText: 'Phone',
-                prefixIcon: Icon(Icons.phone),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone';
-                  }
-                  // allow only number
-                  if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
-                    return 'Phone must be number';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              DropdownButtonFormField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  labelText: 'Gender',
-                  hintText: 'Select your Gender',
-                  prefixIcon: Icon(Icons.person),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.green,
-                      width: 2.0,
-                    ),
-                  ),
-                ),
-                value: _genderController.text.isEmpty
-                    ? null
-                    : _genderController.text,
-                items: [
-                  DropdownMenuItem(value: 'Female', child: Text('Female')),
-                  DropdownMenuItem(value: 'Male', child: Text('Male')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _genderController.text = value.toString();
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select an item';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              CustomTextField(
-                controller: _emailController,
-                hintText: 'Email',
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
-                      .hasMatch(value)) {
-                    return 'Please enter valid email';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              CustomTextField(
-                controller: _addressController,
-                hintText: 'Address',
-                labelText: 'Address',
-                prefixIcon: Icon(Icons.home),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your address';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              CustomTextField(
-                controller: _usernameController,
-                hintText: 'Username',
-                labelText: 'Username',
-                prefixIcon: Icon(Icons.person),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your username';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              CustomTextField(
-                controller: _passwordController,
-                hintText: 'Password',
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.password),
-                isPassword: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 8) {
-                    return 'Password must be at least 8 characters';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              CustomTextField(
-                controller: _passwordConfirmationController,
-                hintText: 'Password Confirmation',
-                labelText: 'Password Confirmation',
-                prefixIcon: Icon(Icons.password),
-                isPassword: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password confirmation';
-                  }
-                  if (value.length < 8) {
-                    return 'Password confirmation must be at least 8 characters';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                height: 45,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/home');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  icon: Icon(
-                    Icons.login,
-                    color: whiteColor,
-                  ),
-                  label: Text(
-                    'Register',
-                    style: TextStyle(color: whiteColor),
-                  ),
-                ),
-              ),
-            ],
+    return BlocConsumer<RegisterCubit, RegisterState>(
+      listener: (context, state) {
+        if (state is RegisterSuccess) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/login', (route) => false);
+        } else if (state is RegisterFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(state.message),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state is RegisterLoading) {
+          return Scaffold(
+            body: const Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            leading: BackButton(
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/login', (route) => false);
+              },
+            ),
+            backgroundColor: primaryColor,
+            title: Text(
+              'Register Form',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
-        ),
-      ),
+          body: Form(
+            key: _formKey,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CustomTextField(
+                    controller: _fullNameController,
+                    hintText: 'Full Name',
+                    labelText: 'Full Name',
+                    prefixIcon: Icon(Icons.person),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your full name';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: _phoneController,
+                    hintText: 'Phone',
+                    labelText: 'Phone',
+                    prefixIcon: Icon(Icons.phone),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your phone';
+                      }
+                      // allow only number
+                      if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                        return 'Phone must be number';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      labelText: 'Gender',
+                      hintText: 'Select your Gender',
+                      prefixIcon: Icon(Icons.person),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.green,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
+                    value: _genderController.text.isEmpty
+                        ? null
+                        : _genderController.text,
+                    items: [
+                      DropdownMenuItem(value: 'Female', child: Text('Female')),
+                      DropdownMenuItem(value: 'Male', child: Text('Male')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _genderController.text = value.toString();
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select an item';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: _emailController,
+                    hintText: 'Email',
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
+                          .hasMatch(value)) {
+                        return 'Please enter valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: _addressController,
+                    hintText: 'Address',
+                    labelText: 'Address',
+                    prefixIcon: Icon(Icons.home),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your address';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: _usernameController,
+                    hintText: 'Username',
+                    labelText: 'Username',
+                    prefixIcon: Icon(Icons.person),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your username';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: _passwordController,
+                    hintText: 'Password',
+                    labelText: 'Password',
+                    prefixIcon: Icon(Icons.password),
+                    isPassword: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 8) {
+                        return 'Password must be at least 8 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  CustomTextField(
+                    controller: _passwordConfirmationController,
+                    hintText: 'Password Confirmation',
+                    labelText: 'Password Confirmation',
+                    prefixIcon: Icon(Icons.password),
+                    isPassword: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password confirmation';
+                      }
+                      if (value.length < 8) {
+                        return 'Password confirmation must be at least 8 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 45,
+                    child: ElevatedButton.icon(
+                      onPressed: _onRegisterSubmit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: Icon(
+                        Icons.login,
+                        color: whiteColor,
+                      ),
+                      label: Text(
+                        'Register',
+                        style: TextStyle(color: whiteColor),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

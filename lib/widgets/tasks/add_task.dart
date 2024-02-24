@@ -1,6 +1,9 @@
+import 'package:bloc_todos_app/bloc/categories/get_all_category/get_category_bloc.dart';
+import 'package:bloc_todos_app/data/models/category_res_model.dart';
 import 'package:bloc_todos_app/utilities/constants.dart';
 import 'package:bloc_todos_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTask extends StatefulWidget {
   AddTask({super.key});
@@ -80,35 +83,9 @@ class _AddTaskState extends State<AddTask> {
           ),
           const SizedBox(height: 20),
           // select category from dropdown
-          DropdownButtonFormField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              labelText: 'Category',
-              hintText: 'Select your category',
-              prefixIcon: Icon(Icons.category),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: primaryColor,
-                  width: 2.0,
-                ),
-              ),
-            ),
-            value: 'Personal',
-            items: [
-              DropdownMenuItem(value: 'Personal', child: Text('Personal')),
-              DropdownMenuItem(value: 'Work', child: Text('Work')),
-              DropdownMenuItem(value: 'Meeting', child: Text('Meeting')),
-            ],
-            onChanged: (value) {
-              setState(() {});
-            },
-            validator: (value) {
-              if (value == null) {
-                return 'Please select an item';
-              }
-              return null;
+          CategoryDropdown(
+            selected: (category) {
+              print(category.name);
             },
           ),
           const SizedBox(height: 20),
@@ -137,6 +114,85 @@ class _AddTaskState extends State<AddTask> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CategoryDropdown extends StatelessWidget {
+  const CategoryDropdown({
+    super.key,
+    this.selected,
+  });
+
+  final Function(CategoryResModelData)? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<GetCategoryBloc, GetCategoryState>(
+      builder: (context, state) {
+        if (state is GetCategoryLoading) {
+          return Center(
+            child: CircularProgressIndicator.adaptive(),
+          );
+        } else if (state is GetCategorySuccess) {
+          if (state.categoryResModel.data.isEmpty) {
+            return Center(
+              child: Text('No categories found'),
+            );
+          }
+          final List<CategoryResModelData> categories =
+              state.categoryResModel.data;
+          return DropdownButtonFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              labelText: 'Category',
+              hintText: 'Select your category',
+              prefixIcon: Icon(Icons.category),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: primaryColor,
+                  width: 2.0,
+                ),
+              ),
+            ),
+            value: categories[0],
+            items: [
+              // for (CategoryResModelData category in categories)
+              //   DropdownMenuItem(
+              //     value: category.name,
+              //     onTap: () {
+              //       selected!(category as CategoryResModel);
+              //     },
+              //     child: Text(category.name),
+              //   ),
+
+              // DropdownMenuItem(value: 'Personal', child: Text('Personal')),
+
+              ...categories.map(
+                (category) => DropdownMenuItem(
+                  value: category,
+                  child: Text(category.name),
+                ),
+              ),
+            ],
+            onChanged: (value) {
+              selected!.call(value as CategoryResModelData);
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Please select an item';
+              }
+              return null;
+            },
+          );
+        } else {
+          return Center(
+            child: Text('Failed to load categories'),
+          );
+        }
+      },
     );
   }
 }

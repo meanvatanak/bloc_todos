@@ -13,5 +13,8 @@ const baseUrl = "https://apilearning.camasean.edu.kh";
 
 // constant variable
 const String accessToken = 'token';
+const String isLoggedKey = 'isLogged';
+const String userKey = 'user';
+const String userInfoKey = 'userInfo';
 
 // authentication user information

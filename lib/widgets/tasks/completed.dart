@@ -74,6 +74,7 @@ class _TasksCompletedState extends State<TasksCompleted> {
                       name: task['name'],
                       description: task['description'],
                       dueDate: task['due_date'],
+                      category: task['category_id'],
                     ),
                   ),
                 ),
